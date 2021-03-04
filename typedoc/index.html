@@ -1,0 +1,243 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>React Native Wechat</title>
+	<meta name="description" content="Documentation for React Native Wechat">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">React Native Wechat</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>React Native Wechat</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<br />
+				<br />
+				<p align="center">
+					<a href="https://uiwjs.github.io/react-native-wechat/">
+						<img src="https://user-images.githubusercontent.com/1680273/89100258-46cf6a00-d428-11ea-96dc-8b07a0ee277c.png" height="100" />
+					</a>
+					<h1 align="center">@uiw/react-native-wechat</h1>
+					<p>
+						<p><a href="https://npmjs.org/package/@uiw/react-native-wechat"><img src="https://img.shields.io/npm/v/@uiw/react-native-wechat.svg" alt="NPM Version"></a>
+						<img src="https://img.shields.io/david/peer/uiwjs/react-native-alipay" alt="David"></p>
+						<p>React Native 包使用微信分享、登录、收藏、支付等功能，支持Android/iOS。完整实例 <a href="https://github.com/uiwjs/react-native-wechat/tree/master/example">Example</a> | <a href="https://uiwjs.github.io/react-native-alipay/">完整的接口文档</a></p>
+						<a href="#注意事项" id="注意事项" style="color: inherit; text-decoration: none;">
+							<h2>注意事项</h2>
+						</a>
+						<details>
+							<summary>iOS: 微信授权登录 Universal Link(通用链接)</summary>
+							<blockquote>
+								<p><a href="https://developer.apple.com/documentation/safariservices/supporting_associated_domains">Universal Link(通用链接)</a>是苹果在 iOS9 推出的，一种能够方便的通过传统 HTTPS 链接来启动 APP 的功能，可以使用相同的网址打开网址和 APP。<br>看起来就是一条普通的 https 链接，当然是我们在该链接域名根目录配置过的一个链接，也可以在该链接中放置对应的H5页面。当用户的点击该链接，只要手机中安装了支持该链接的 APP 就会直接进入到 APP 中。如果没有安装APP则会跳转到 Safari 浏览器中，展示 H5 页面。对用户来说则是一个无缝跳转的过程。  </p>
+							</blockquote>
+							<p>创建一个名为 <code>apple-app-site-association</code> 的文件，如下：</p>
+							<pre><code class="language-json">{
+  <span class="hljs-attr">&quot;applinks&quot;</span>: {
+    <span class="hljs-attr">&quot;details&quot;</span>: [
+      {
+        <span class="hljs-attr">&quot;appID&quot;</span>: <span class="hljs-string">&quot;968DSZ49MT.com.uiwjs.react.example.wechat&quot;</span>,
+        <span class="hljs-attr">&quot;paths&quot;</span>: [<span class="hljs-string">&quot;/react-native-wechat/*&quot;</span>]
+      }
+    ]
+  }
+}
+</code></pre>
+							<p><strong>说明：</strong> 字段 appID 中的 <code>968DSZ49MT</code> 表示苹果账号的团队 <code>ID</code>，<code>com.uiwjs.react.example.wechat</code> 表示项目的 <code>BundleID</code>。</p>
+							<pre><code><span class="hljs-tag">&lt;<span class="hljs-name">Application</span> <span class="hljs-attr">Identifier</span> <span class="hljs-attr">Prefix</span>&gt;</span>.<span class="hljs-tag">&lt;<span class="hljs-name">Bundle</span> <span class="hljs-attr">Identifier</span>&gt;</span>
+</code></pre>
+							<p>上传该文件到你的域名所对应的<code>根目录</code>或<code>xxx目录</code>下，<code>apple-app-site-association</code> 文件不需要扩展名。</p>
+							<p><strong>注意：</strong> 苹果提供了一个<a href="https://search.developer.apple.com/appsearch-validation-tool/">网页来验证</a>我们编写的这个 <a href="https://search.developer.apple.com/appsearch-validation-tool/">apple-app-site-association</a> 是否合法有效。</p>
+							<pre><code>https:<span class="hljs-regexp">//</span>&lt;fully qualified domain&gt;<span class="hljs-regexp">/.well-known/</span>apple-app-site-association
+根目录
+https:<span class="hljs-regexp">//ui</span>wjs.github.io/apple-app-site-association
+
+xxx目录
+https:<span class="hljs-regexp">//ui</span>wjs.github.io<span class="hljs-regexp">/react-native-wechat/</span>apple-app-site-association
+</code></pre>
+							<p>打开 <code>Associated Domains</code> 开关，将 <a href="https://developer.apple.com/documentation/safariservices/supporting_associated_domains"><code>Universal Links</code></a> 域名加到配置上，如果 <code>URL</code> 地址是 <a href="https://uiwjs.github.io/apple-app-site-association%EF%BC%8C%E9%82%A3%E4%B9%88%EF%BC%8C">https://uiwjs.github.io/apple-app-site-association，那么，</a>
+							<code>Associated Domains</code> 中填写 <code>applinks: uiwjs.github.io</code>。</p>
+							<img src="https://user-images.githubusercontent.com/1680273/89387904-c796aa80-d735-11ea-973c-f386f46cd16f.png" />
+							<p>登录苹果开发者后台，在设置证书的页面找到 <code>Identifiers</code> 里，在对应的 <code>BundleId</code> 下勾选 <code>Associated Domains</code></p>
+							<img src="https://user-images.githubusercontent.com/1680273/89388154-32e07c80-d736-11ea-9724-e94cf6d468ca.png" />
+						</details>
+						<details>
+							<summary>iOS: -canOpenURL: failed for URL: "weixin://".</summary>
+							<blockquote>
+								<pre><code>-canOpenURL: failed <span class="hljs-keyword">for</span> URL: <span class="hljs-string">&quot;weixin://&quot;</span> - <span class="hljs-keyword">error</span>: <span class="hljs-string">&quot;The operation couldn’t be completed. (OSStatus error -10814.)&quot;</span>
+</code></pre>
+							</blockquote>
+							<p>设置 URL Schemes 并列为白名单，在 <a href="https://github.com/uiwjs/react-native-wechat/blob/f6caea5b7d58dd05b7fc110ff76295c5e2be927b/example/ios/example/Info.plist#L23-L43"><code>ios/&lt;应用名称&gt;/Info.plist</code></a> 中添加</p>
+							<pre><code class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>CFBundleURLTypes<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">array</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">dict</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>CFBundleURLName<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>weixin<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>CFBundleURLSchemes<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">array</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>wx500b695a47bd364b<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-name">array</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">dict</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">array</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">key</span>&gt;</span>LSApplicationQueriesSchemes<span class="hljs-tag">&lt;/<span class="hljs-name">key</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">array</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>weixin<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">string</span>&gt;</span>weixinULAPI<span class="hljs-tag">&lt;/<span class="hljs-name">string</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">array</span>&gt;</span>
+</code></pre>
+						</details>
+						<details>
+							<summary>iOS: RCTBridge required dispatch_sync to load RCTDevLoadingView.</summary>
+							<blockquote>
+								<p>错误内容： RCTBridge required dispatch_sync to load RCTDevLoadingView. This may lead to deadlocks</p>
+							</blockquote>
+							<p><strong>错误解决方案</strong>：可以通过下面代码可以解决，事实上我通过关闭 debug 浏览器页面就没有错误消息了。错误原因可能是你打开了 debug 浏览器，但是你模拟器并没有开启 debug 模式。</p>
+							<pre><code class="language-diff"><span class="hljs-addition">+ #if RCT_DEV</span>
+<span class="hljs-addition">+ #import &lt;React/RCTDevLoadingView.h&gt;</span>
+<span class="hljs-addition">+ #endif</span>
+
+<span class="hljs-deletion">- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions</span>
+{
+#ifdef FB_SONARKIT_ENABLED
+  InitializeFlipper(application);
+#endif
+
+  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+
+<span class="hljs-addition">+  #if RCT_DEV</span>
+<span class="hljs-addition">+    [bridge moduleForClass:[RCTDevLoadingView class]];</span>
+<span class="hljs-addition">+  #endif</span>
+  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge moduleName:@&quot;example&quot; initialProperties:nil];
+</code></pre>
+						</details>
+						<a href="#安装依赖" id="安装依赖" style="color: inherit; text-decoration: none;">
+							<h2>安装依赖</h2>
+						</a>
+						<pre><code class="language-bash">yarn add @uiw/react-native-alipay
+<span class="hljs-comment"># react-native version &gt;= 0.60+</span>
+$ <span class="hljs-built_in">cd</span> ios &amp;&amp; pod install
+</code></pre>
+						<a href="#使用" id="使用" style="color: inherit; text-decoration: none;">
+							<h2>使用</h2>
+						</a>
+						<pre><code class="language-js"><span class="hljs-keyword">import</span> Wechat <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@uiw/react-native-wechat&#x27;</span>;
+</code></pre>
+						<a href="#开发" id="开发" style="color: inherit; text-decoration: none;">
+							<h2>开发</h2>
+						</a>
+						<pre><code class="language-bash"><span class="hljs-built_in">cd</span> example   <span class="hljs-comment"># 进入实例 example 工程，根目录不需要安装，会引发错误</span>
+yarn install <span class="hljs-comment"># 安装依赖</span>
+
+<span class="hljs-built_in">cd</span> ios     <span class="hljs-comment"># 进入 example/ios 目录安装依赖</span>
+pod instll <span class="hljs-comment"># 安装依赖</span>
+</code></pre>
+						<a href="#其它" id="其它" style="color: inherit; text-decoration: none;">
+							<h2>其它</h2>
+						</a>
+						<p>当前工程基于 <a href="https://github.com/brodybits/create-react-native-module">@brodybits/create-react-native-module</a> 初始化。</p>
+						<pre><code class="language-bash">npx create-react-native-module --package-identifier com.uiwjs.react.wechat --object-class-name RNWechat --generate-example Wechat --example-react-native-version 0.63.2 --module-name @uiw/react-native-wechat --github-account uiwjs --author-name <span class="hljs-string">&quot;Kenny Wong&quot;</span> --author-email <span class="hljs-string">&quot;wowohoo@qq.com&quot;</span>
+</code></pre>
+						<a href="#相关连接" id="相关连接" style="color: inherit; text-decoration: none;">
+							<h2>相关连接</h2>
+						</a>
+						<ul>
+							<li><a href="https://developers.weixin.qq.com/doc/oplatform/Downloads/iOS_Resource.html">微信(SDK)：iOS SDK v1.8.7.1</a></li>
+							<li><a href="https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html">微信(SDK)：iOS 接入指南</a></li>
+							<li><a href="https://github.com/uiwjs/react-native-alipay">@uiw/react-native-alipay</a> 支付宝支付。</li>
+						</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-function">
+						<a href="globals.html#getapiversion" class="tsd-kind-icon">get<wbr>Api<wbr>Version</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#iswxappinstalled" class="tsd-kind-icon">isWXApp<wbr>Installed</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#iswxappsupportapi" class="tsd-kind-icon">isWXApp<wbr>Support<wbr>Api</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#openwxapp" class="tsd-kind-icon">openWXApp</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#registerapp" class="tsd-kind-icon">register<wbr>App</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
