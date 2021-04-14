@@ -23,4 +23,9 @@ export function openWXApp(): Promise<boolean>;
 /**
  * 获取当前微信SDK的版本号
  */
-export function getApiVersion(): Promise<string>;
+export function getApiVersion(): Promise<string>; 
+
+/**
+ * 发送请求支付请求
+ */
+export function sendPayRequest() : Promise<string>;

@@ -38,4 +38,12 @@ export default class Wechat {
   static getApiVersion() {
     return NativeModules.RNWechat.getApiVersion();
   }
+
+  /**
+   * 发送请求支付请求
+   */
+  static sendPayRequest() {
+    return NativeModules.RNWechat.sendPayRequest();
+  }
+
 }
