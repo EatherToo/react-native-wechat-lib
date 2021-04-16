@@ -5,14 +5,12 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeMap;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 public class RNWechatModule extends ReactContextBaseJavaModule {
-
+    static public Promise sendReqPromise = null;
     private final ReactApplicationContext reactContext;
     private String appId;
     private IWXAPI api = null;
@@ -98,6 +96,8 @@ public class RNWechatModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void sendPayRequest(ReadableMap requestParams, Promise promise) {
+        RNWechatModule.sendReqPromise = promise;
+
         String props[] = {"appid", "partnerid", "prepayid", "prepayid", "noncestr", "timestamp", "package", "sign", "extdata"};
 
         try {
@@ -157,13 +157,12 @@ public class RNWechatModule extends ReactContextBaseJavaModule {
 //                promise.reject("-1", "调起失败");
 //
 //            } else {
-            WritableMap writableMap = new WritableNativeMap();
-            for (int i = 0; i < props.length; i++) {
-                if (requestParams.hasKey(props[i])) {
-                    writableMap.putString(props[i], requestParams.getString(props[i]));
-                }
-            }
-            promise.resolve(writableMap);
+//            WritableMap writableMap = new WritableNativeMap();
+//            for (int i = 0; i < props.length; i++) {
+//                if (requestParams.hasKey(props[i])) {
+//                    writableMap.putString(props[i], requestParams.getString(props[i]));
+//                }
+//            }
 //
 //            }
         } catch (Exception e) {

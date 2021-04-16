@@ -25,7 +25,18 @@ export function openWXApp(): Promise<boolean>;
  */
 export function getApiVersion(): Promise<string>; 
 
+
+export type RequestOption = {
+  appId: string;
+  partnerId: string;
+  prepayId: string;
+  nonceStr: string;
+  timestamp: string;
+  packageValue: string;
+  sign: string;
+  extData?: string;
+}
 /**
  * 发送请求支付请求
  */
-export function sendPayRequest() : Promise<string>;
+export function sendPayRequest(requestOption: RequestOption) : Promise<any>;

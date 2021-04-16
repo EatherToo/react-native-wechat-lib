@@ -42,8 +42,8 @@ export default class Wechat {
   /**
    * 发送请求支付请求
    */
-  static sendPayRequest() {
-    return NativeModules.RNWechat.sendPayRequest();
+  static sendPayRequest(requestOption) {
+    return NativeModules.RNWechat.sendPayRequest(requestOption);
   }
 
 }
