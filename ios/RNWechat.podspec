@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description  = <<-DESC
                       React Native 包使用微信分享、登录、收藏、支付等功能。
                    DESC
-  s.homepage     = "https://github.com/uiwjs/react-native-wechat"
+  s.homepage     = "https://github.com/EatherToo/react-native-wechat"
   # brief license entry:
   # s.license      = "MIT"
   # optional - use expanded license entry instead:
@@ -17,7 +17,7 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.author       = { package["author"]["name"] => package["author"]["email"] }
   s.platforms    = { :ios => "9.0" }
-  s.source       = { :git => "https://github.com/uiwjs/react-native-wechat.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/EatherToo/react-native-wechat.git", :tag => "#{s.version}" }
 
   s.source_files = "**/*.{h,c,m,swift}"
   s.requires_arc = true
