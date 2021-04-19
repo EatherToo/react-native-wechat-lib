@@ -91,4 +91,31 @@ RCT_EXPORT_METHOD(getApiVersion: (RCTPromiseResolveBlock)resolve rejecter:(RCTPr
     resolve([WXApi getApiVersion]);
 }
 
+// 发送支付请求
+RCT_REMAP_METHOD(sendPayRequest, params:(NSDictionary *)params resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    NSLog(@"WeChatSDK: %@", params);
+    PayReq *request = [[PayReq alloc] init];
+    
+    [params enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([key isEqualToString:@"partnerid"]) {
+            request.partnerId = obj;
+        } else if ([key isEqualToString:@"prepayid"]) {
+            request.prepayId = obj;
+        } else if ([key isEqualToString:@"package"]) {
+            request.package = obj;
+        } else if ([key isEqualToString:@"noncestr"]) {
+            request.nonceStr = obj;
+        } else if ([key isEqualToString:@"timestamp"]) {
+            request.timeStamp = (UInt32)obj;
+        } else if ([key isEqualToString:@"sign"]) {
+            request.sign = obj;
+        }
+          
+    }];
+
+    [WXApi sendReq:request completion:^(BOOL success) {
+        NSLog(@"WeChatSDK SELF: %d", success);
+    }];
+}
+
 @end
