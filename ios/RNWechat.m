@@ -3,8 +3,21 @@
 // Define error messages
 #define INVOKE_FAILED (@"WeChat API invoke returns false.")
 
+static RCTPromiseResolveBlock sendPayResolverStatic = nil;
+
+static RCTPromiseRejectBlock sendPayRejecterStatic = nil;
+
+
 @implementation RNWechat {
     BOOL *_api;
+}
+
++ (RCTPromiseResolveBlock)getSendPayResolverStatic {
+    return sendPayResolverStatic;
+}
+
++ (RCTPromiseRejectBlock) getSendPayRejecterStatic {
+    return sendPayRejecterStatic;
 }
 
 RCT_EXPORT_MODULE()
@@ -93,6 +106,10 @@ RCT_EXPORT_METHOD(getApiVersion: (RCTPromiseResolveBlock)resolve rejecter:(RCTPr
 
 // 发送支付请求
 RCT_REMAP_METHOD(sendPayRequest, params:(NSDictionary *)params resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    
+    sendPayResolverStatic = resolve;
+    sendPayRejecterStatic = reject;
+    
     NSLog(@"WeChatSDK: %@", params);
     PayReq *request = [[PayReq alloc] init];
     
