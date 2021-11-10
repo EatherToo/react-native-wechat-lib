@@ -1,16 +1,8 @@
-<br />
-<br />
-<p align="center">
-  <a href="https://uiwjs.github.io/react-native-wechat/">
-    <img src="https://user-images.githubusercontent.com/1680273/89100258-46cf6a00-d428-11ea-96dc-8b07a0ee277c.png" height="100" />
-  </a>
-  <h1 align="center">@uiw/react-native-wechat</h1>
-<p>
+### react-native-wechat-lib
 
-[![NPM Version](https://img.shields.io/npm/v/@uiw/react-native-wechat.svg)](https://npmjs.org/package/@uiw/react-native-wechat)
-![David](https://img.shields.io/david/peer/uiwjs/react-native-alipay)
 
-React Native 包使用微信分享、登录、收藏、支付等功能，支持Android/iOS。完整实例 [Example](https://github.com/uiwjs/react-native-wechat/tree/master/example) | [完整的接口文档](https://uiwjs.github.io/react-native-alipay/)
+
+安装: `yarn add eather-react-native-wechat`
 
 ## 注意事项
 
@@ -123,41 +115,222 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
 
 </details>
 
-## 安装依赖
 
-```bash
-yarn add @uiw/react-native-alipay
-# react-native version >= 0.60+
-$ cd ios && pod install
+
+
+
+#### 一、接入指南
+  - ##### 安卓
+
+    1. 在项目的`android/app`目录下找到`build.gradle`文件，并在`dependencies`加入下面的依赖
+
+       ```groovy
+       dependencies {
+           ......
+           // 微信SDK
+           // Android Studio环境下：已改用gradle形式，发布到jcenter，请开发者使用gradle来编译、更新微信SDK。
+           // 在build.gradle文件中，添加如下依赖即可：
+           implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
+           ......
+       }
+       ```
+
+    2. 新建消息接收类
+
+       1. 微信支付：在项目的根`package`下新建一个子`package`叫`wxapi`,然后新建一个名为`WXPayEntryActivity`的类
+
+          ```java
+          package xxx.xxx.wxapi; // 根package的名称可以在AndroidManifest.xml的manifest中找到
+          
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.util.Log;
+          import com.tencent.mm.opensdk.modelbase.BaseReq;
+          import com.tencent.mm.opensdk.modelbase.BaseResp;
+          import com.tencent.mm.opensdk.openapi.IWXAPI;
+          import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
+          import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+          
+          import net.sourceforge.simcpux.RNWechatModule;
+          
+          public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
+              private IWXAPI api = null;
+          
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  api = WXAPIFactory.createWXAPI(this, "wx7363cc9581927cb3");
+                  api.handleIntent(getIntent(), this);
+              }
+          
+              @Override
+              protected void onStart() {
+                  super.onStart();
+                  finish();
+              }
+          
+              @Override
+              public void onReq(BaseReq baseReq) {
+          
+              }
+          
+              @Override
+              public void onResp(BaseResp baseResp) {
+                  Log.d("WXPAY", "onPayFinish, errCode = " + baseResp.errCode);
+                  RNWechatModule.sendReqPromise.resolve(baseResp.errCode);
+          
+              }
+          }
+          ```
+
+    3. 在`AndroidManifest.xml`中加入对应的`activity`
+
+       1. 微信支付
+
+          ```xml
+          <activity
+                      android:name=".wxapi.WXPayEntryActivity"
+                      android:exported="true"
+                      android:launchMode="singleTop"
+                      android:theme="@android:style/Theme.NoDisplay" />
+          ```
+
+- ##### iOS
+
+  1. 先 `cd` 到 `ios` 目录下，运行`pod install`
+
+  2. 事件通知
+
+     1. 在`AppDelegate.m`文件中添加依赖库
+
+        ```objective-c
+        #import <WXApi.h>
+        #import <RNWechat/RNWechat.h>
+        ```
+
+     2. 添加微信消息接收事件的方法
+
+        ```objective-c
+        //ios9以后
+        - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary*)options {
+         return  [WXApi handleOpenURL:url delegate:self];
+        }
+        //ios9以后的方法
+        - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+         return [WXApi handleOpenURL:url delegate:self];
+        }
+        //ios9以前
+        - (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+         return  [WXApi handleOpenURL:url delegate:self];
+        }
+        
+        #pragma mark - wx callback
+        
+        - (void) onReq:(BaseReq*)req
+        {
+         // TODO Something
+        }
+        
+        - (void)onResp:(BaseResp *)resp
+        {
+          RCTPromiseResolveBlock resolver = [RNWechat getSendPayResolverStatic];
+          RCTPromiseRejectBlock rejecter = [RNWechat getSendPayRejecterStatic];
+          
+         //判断是否是微信支付回调 (注意是PayResp 而不是PayReq)
+         if ([resp isKindOfClass:[PayResp class]])
+         {
+           //启动微信支付的response
+               NSString *payResoult = [NSString stringWithFormat:@"errcode:%d", resp.errCode];
+               if([resp isKindOfClass:[PayResp class]]){
+                   //支付返回结果，实际支付结果需要去微信服务器端查询
+                   switch (resp.errCode) {
+                       case 0:
+                           payResoult = @"支付结果：成功！";
+                           break;
+                       case -1:
+                           payResoult = @"支付结果：失败！";
+                           break;
+                       case -2:
+                           payResoult = @"用户已经退出支付！";
+                           break;
+                       default:
+                           payResoult = [NSString stringWithFormat:@"支付结果：失败！retcode = %d, retstr = %@", resp.errCode,resp.errStr];
+                           break;
+                   }
+                 resolver(@(resp.errCode));
+               } else {
+                 rejecter(@"-10404", @"失败", nil);
+               }
+           NSLog(@"WeChatSDK: %@", payResoult);
+         }
+        }
+        
+        ```
+
+
+
+#### 二、 文档说明
+
+```ts
+
+/**
+ * 向微信注册应用
+ * 必须先注册应用，在 Android 后面的调用才会起作用
+ * @param appid 通过微信开放平台，[获取appid](https://open.weixin.qq.com/)
+ * @param universalLink 参数在 iOS 中有效，Universal Link(通用链接)是苹果在 iOS9 推出的，一种能够方便的通过传统 HTTPS 链接来启动 APP 的功能，可以使用相同的网址打开网址和 APP。
+ */
+export function registerApp(appid: string, universalLink: string): Promise<any>;
+/**
+ * 检查微信是否已被用户安装  
+ * 微信已安装返回 `true`，未安装返回 `false`。
+ */
+export function isWXAppInstalled(): Promise<boolean>;
+/**
+ * 判断当前微信的版本是否支持 OpenApi  
+ * 支持返回 `true`，不支持返回 `false`
+ */
+export function isWXAppSupportApi(): Promise<boolean>;
+/**
+ * 打开微信，成功返回 `true`，不支持返回 失败返回 `false`
+ */
+export function openWXApp(): Promise<boolean>;
+/**
+ * 获取当前微信SDK的版本号
+ */
+export function getApiVersion(): Promise<string>; 
+
+
+export type RequestOption = {
+  appId: string;
+  partnerId: string;
+  prepayId: string;
+  nonceStr: string;
+  timestamp: string;
+  packageValue: string;
+  sign: string;
+  extData?: string;
+}
+/**
+ * 发送请求支付请求
+ */
+export function sendPayRequest(requestOption: RequestOption) : Promise<any>;
 ```
 
-## 使用
+
+
+#### 三、使用示例
 
 ```js
-import Wechat from '@uiw/react-native-wechat';
-
+import Wechat from 'eather-react-native-wechat';
+const wechatInit = () => {
+  await Wechat.registerApp(
+        'wx7363cc9581927cb3',
+        'https://www.52dian.com/app',
+      ).then(res => {
+        console.log(res, 'registerApp');
+      });
+      const _isInstall = await Wechat.isWXAppInstalled();
+      const _isWXAppSupportApi = await Wechat.isWXAppSupportApi();
+}
 ```
 
-## 开发
-
-```bash
-cd example   # 进入实例 example 工程，根目录不需要安装，会引发错误
-yarn install # 安装依赖
-
-cd ios     # 进入 example/ios 目录安装依赖
-pod instll # 安装依赖
-```
-
-## 其它
-
-当前工程基于 [@brodybits/create-react-native-module](https://github.com/brodybits/create-react-native-module) 初始化。
-
-```bash
-npx create-react-native-module --package-identifier com.uiwjs.react.wechat --object-class-name RNWechat --generate-example Wechat --example-react-native-version 0.63.2 --module-name @uiw/react-native-wechat --github-account uiwjs --author-name "Kenny Wong" --author-email "wowohoo@qq.com"
-```
-
-## 相关连接 
-
-- [微信(SDK)：iOS SDK v1.8.7.1](https://developers.weixin.qq.com/doc/oplatform/Downloads/iOS_Resource.html)
-- [微信(SDK)：iOS 接入指南](https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html)
-- [@uiw/react-native-alipay](https://github.com/uiwjs/react-native-alipay) 支付宝支付。
