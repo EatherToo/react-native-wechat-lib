@@ -1,8 +1,10 @@
-### react-native-wechat-lib
+### react-native-wechat-libs
 
 
 
-安装: `yarn add eather-react-native-wechat`
+安装: `yarn add react-native-wechat-libs`
+
+此项目改写自 [https://github.com/uiwjs/react-native-wechat](https://github.com/uiwjs/react-native-wechat)
 
 ## 注意事项
 
@@ -437,7 +439,7 @@ export function sendLoginRequest(requestOption: {state: string}) : Promise<any>;
 
 1. 注册、判断是否安装、支持微信示例
 ```js
-import Wechat from 'eather-react-native-wechat';
+import Wechat from 'react-native-wechat-libs';
 const wechatInit = () => {
   await Wechat.registerApp(
         'wx7363cc9581927cb3',
@@ -451,7 +453,7 @@ const wechatInit = () => {
 ```
 2、 微信登录示例
 ```js
-  import Wechat from 'eather-react-native-wechat';
+  import Wechat from 'react-native-wechat-libs';
   const WXLogin = () => {
     let state = new Date().getTime(); // 这里state取值可根据项目实际设置，此处为简单示例
     Wechat.sendLoginRequest({state: state}).then((res: any) => {
