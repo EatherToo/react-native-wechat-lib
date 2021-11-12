@@ -46,4 +46,12 @@ export default class Wechat {
     return NativeModules.RNWechat.sendPayRequest(requestOption);
   }
 
+  /**
+   * 发送登录认证请求
+   * @param state 唯一标识码
+   */
+   static sendLoginRequest(requestOption) {
+    return NativeModules.RNWechat.sendLoginRequest(requestOption);
+  }
+
 }

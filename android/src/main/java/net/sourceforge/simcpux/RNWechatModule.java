@@ -5,6 +5,10 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.tencent.mm.opensdk.modelmsg.SendAuth;
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.opensdk.modelmsg.WXTextObject;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
@@ -168,6 +172,21 @@ public class RNWechatModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject("-1", e.getMessage());
         }
+    }
+
+    @ReactMethod
+    // 请求微信登录认证
+    public void sendLoginRequest(ReadableMap requestParams, Promise promise) {
+        RNWechatModule.sendReqPromise = promise;
+        String props[] = {"state"};
+        String state = requestParams.getString("state");
+        // send oauth request
+        final SendAuth.Req req = new SendAuth.Req();
+        req.scope = "snsapi_userinfo";
+        req.state = state;
+
+        //调用api接口，发送数据到微信
+        api.sendReq(req);
     }
 
 }
