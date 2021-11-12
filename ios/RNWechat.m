@@ -3,9 +3,15 @@
 // Define error messages
 #define INVOKE_FAILED (@"WeChat API invoke returns false.")
 
+// 支付
 static RCTPromiseResolveBlock sendPayResolverStatic = nil;
 
 static RCTPromiseRejectBlock sendPayRejecterStatic = nil;
+
+// 登录
+static RCTPromiseResolveBlock sendLoginResolverStatic = nil;
+
+static RCTPromiseRejectBlock sendLoginRejecterStatic = nil;
 
 
 @implementation RNWechat {
@@ -18,6 +24,14 @@ static RCTPromiseRejectBlock sendPayRejecterStatic = nil;
 
 + (RCTPromiseRejectBlock) getSendPayRejecterStatic {
     return sendPayRejecterStatic;
+}
+
++ (RCTPromiseResolveBlock)getSendLoginResolverStatic {
+    return sendLoginResolverStatic;
+}
+
++ (RCTPromiseRejectBlock) getSendLoginRejecterStatic {
+    return sendLoginRejecterStatic;
 }
 
 RCT_EXPORT_MODULE()
@@ -133,6 +147,23 @@ RCT_REMAP_METHOD(sendPayRequest, params:(NSDictionary *)params resolver: (RCTPro
     [WXApi sendReq:request completion:^(BOOL success) {
         NSLog(@"WeChatSDK SELF: %d", success);
     }];
+}
+
+// 发送登录验证请求
+RCT_EXPORT_METHOD(sendLoginRequest: (NSDictionary *)params resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+  
+  sendLoginResolverStatic = resolve;
+  sendLoginRejecterStatic = reject;
+  
+  //构造SendAuthReq结构体
+	SendAuthReq* req =[[SendAuthReq alloc]init];
+
+	req.scope = @"snsapi_userinfo";
+	req.state = params[@"state"];
+	//第三方向微信终端发送一个SendAuthReq消息结构
+	[WXApi sendReq:req completion:^(BOOL success) {
+      NSLog(@"WeChatSDK SELF: %d", success);
+  }];
 }
 
 @end

@@ -8,5 +8,9 @@
 
 + (RCTPromiseRejectBlock) getSendPayRejecterStatic;
 
++ (RCTPromiseResolveBlock)getSendLoginResolverStatic;
+
++ (RCTPromiseRejectBlock) getSendLoginRejecterStatic;
+
 @property NSString* appId;
 @end

@@ -40,3 +40,9 @@ export type RequestOption = {
  * 发送请求支付请求
  */
 export function sendPayRequest(requestOption: RequestOption) : Promise<any>;
+
+/**
+ * 发送登录认证请求
+ * @param state 唯一标识码
+ */
+export function sendLoginRequest(requestOption: {state: string}) : Promise<any>;
