@@ -159,7 +159,7 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
-                  api = WXAPIFactory.createWXAPI(this, "wx7363cc9581927cb3");
+                  api = WXAPIFactory.createWXAPI(this, "微信的appId");
                   api.handleIntent(getIntent(), this);
               }
           
@@ -182,8 +182,65 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
               }
           }
           ```
+        2、微信登录认证：同上，在`wxapi`包下再新建一个名为`WXPayEntryActivity`的类
+        ```java
+        package xx.xx.wxapi;
+        import android.app.Activity;
+        import android.os.Bundle;
+        import android.util.Log;
 
-    3. 在`AndroidManifest.xml`中加入对应的`activity`
+        import com.facebook.react.bridge.Arguments;
+        import com.facebook.react.bridge.WritableMap;
+        import com.tencent.mm.opensdk.modelbase.BaseReq;
+        import com.tencent.mm.opensdk.modelbase.BaseResp;
+        import com.tencent.mm.opensdk.modelmsg.SendAuth;
+        import com.tencent.mm.opensdk.openapi.IWXAPI;
+        import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
+        import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+
+        import net.sourceforge.simcpux.RNWechatModule;
+
+        public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
+            private IWXAPI api = null;
+
+            @Override
+            protected void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                api = WXAPIFactory.createWXAPI(this, "微信的appId");
+                api.handleIntent(getIntent(), this);
+            }
+
+            @Override
+            protected void onStart() {
+                super.onStart();
+                finish();
+            }
+
+            @Override
+            // 微信请求应用的响应结果回调
+            public void onReq(BaseReq baseReq) {
+
+            }
+
+            @Override
+            // 应用请求微信的响应结果回调
+            public void onResp(BaseResp baseResp) {
+
+                Log.d("WXLogin", "onLoginFinish, errCode = " + baseResp.errCode);
+                SendAuth.Resp resp = (SendAuth.Resp) baseResp;
+                WritableMap params = Arguments.createMap();
+                params.putInt("errCode",  baseResp.errCode); // 错误码
+                params.putString("code",  resp.code); // 用户换取 access_token 的 code，仅在 ErrCode 为 0 时有效
+                params.putString("state",  resp.state); // state是用来做标识请求唯一性
+                // lang、country，语言与国家两个字段需要可自行加入返回数据中
+
+                RNWechatModule.sendReqPromise.resolve(params);
+
+            }
+        }
+        ```
+
+    1. 在`AndroidManifest.xml`中加入对应的`activity`
 
        1. 微信支付
 
@@ -193,6 +250,19 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
                       android:exported="true"
                       android:launchMode="singleTop"
                       android:theme="@android:style/Theme.NoDisplay" />
+          ```
+      2. 微信登录认证
+          
+          ```xml
+            <activity
+              android:name=".wxapi.WXEntryActivity"
+              android:label="应用名"
+              android:theme="@android:style/Theme.Translucent.NoTitleBar"
+              android:exported="true"
+              android:taskAffinity="xx.xx.wxapi"
+              android:launchMode="singleTask">
+
+            <!-- android:taskAffinity="xx.xx.wxapi" 需要替换为你自己的包名 -->
           ```
 
 - ##### iOS
@@ -233,36 +303,74 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
         
         - (void)onResp:(BaseResp *)resp
         {
+          // 登录认证的类型 
+          if([resp isKindOfClass:[SendAuthResp class]])
+          {
+            // 需要注意的是 resolver、rejecter 登录认证、支付是不同的方法，不能混用
+            RCTPromiseResolveBlock resolver = [RNWechat getSendLoginResolverStatic];
+            RCTPromiseRejectBlock rejecter = [RNWechat getSendLoginRejecterStatic];
+            // 登录认证返回结果
+            NSString *loginResult = [NSString stringWithFormat:@"errcode:%d", resp.errCode];
+                //登录认证返回结果，实际支付结果需要去微信服务器端查询
+            switch (resp.errCode) {
+              case 0:
+                loginResult = @"登录认证结果：成功！";
+                break;
+              case -1:
+                loginResult = @"登录认证结果：失败！";
+                break;
+              case -2:
+                loginResult = @"用户已经退出登录认证！";
+                break;
+              default:
+                loginResult = [NSString stringWithFormat:@"登录认证结果：失败！retcode = %d, retstr = %@", resp.errCode,resp.errStr];
+                break;
+            }
+            NSLog(@"微信登录：%@", loginResult);
+            SendAuthResp *sendResp = (SendAuthResp *)resp;
+            NSDictionary *params = @{
+              @"errCode": [NSString stringWithFormat:@"%d", sendResp.errCode],
+              @"code": [NSString stringWithFormat:@"%@", sendResp.code],
+              @"state": [NSString stringWithFormat:@"%@", sendResp.state],
+            };
+            resolver(params);
+          
+            NSLog(@"WeChatSDK---------: %@", loginResult);
+            
+          }
+          
+        //判断是否是微信支付回调类型 (注意是PayResp 而不是PayReq)
+        if ([resp isKindOfClass:[PayResp class]])
+        {
           RCTPromiseResolveBlock resolver = [RNWechat getSendPayResolverStatic];
           RCTPromiseRejectBlock rejecter = [RNWechat getSendPayRejecterStatic];
-          
-         //判断是否是微信支付回调 (注意是PayResp 而不是PayReq)
-         if ([resp isKindOfClass:[PayResp class]])
-         {
-           //启动微信支付的response
-               NSString *payResoult = [NSString stringWithFormat:@"errcode:%d", resp.errCode];
-               if([resp isKindOfClass:[PayResp class]]){
-                   //支付返回结果，实际支付结果需要去微信服务器端查询
-                   switch (resp.errCode) {
-                       case 0:
-                           payResoult = @"支付结果：成功！";
-                           break;
-                       case -1:
-                           payResoult = @"支付结果：失败！";
-                           break;
-                       case -2:
-                           payResoult = @"用户已经退出支付！";
-                           break;
-                       default:
-                           payResoult = [NSString stringWithFormat:@"支付结果：失败！retcode = %d, retstr = %@", resp.errCode,resp.errStr];
-                           break;
-                   }
-                 resolver(@(resp.errCode));
-               } else {
-                 rejecter(@"-10404", @"失败", nil);
-               }
-           NSLog(@"WeChatSDK: %@", payResoult);
-         }
+          //启动微信支付的response
+              NSString *payResoult = [NSString stringWithFormat:@"errcode:%d", resp.errCode];
+              if([resp isKindOfClass:[PayResp class]]){
+                  //支付返回结果，实际支付结果需要去微信服务器端查询
+                  switch (resp.errCode) {
+                      case 0:
+                          payResoult = @"支付结果：成功！";
+                          break;
+                      case -1:
+                          payResoult = @"支付结果：失败！";
+                          break;
+                      case -2:
+                          payResoult = @"用户已经退出支付！";
+                          break;
+                      default:
+                          payResoult = [NSString stringWithFormat:@"支付结果：失败！retcode = %d, retstr = %@", resp.errCode,resp.errStr];
+                          break;
+                  }
+                resolver(@(resp.errCode));
+              } else {
+                rejecter(@"-10404", @"失败", nil);
+              }
+          NSLog(@"WeChatSDK: %@", payResoult);
+        }
+        }
+        - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler{
+          return [WXApi handleOpenUniversalLink:userActivity delegate:self];
         }
         
         ```
@@ -314,12 +422,20 @@ export type RequestOption = {
  * 发送请求支付请求
  */
 export function sendPayRequest(requestOption: RequestOption) : Promise<any>;
+
+/**
+ * 发送登录认证请求
+ * @param state 唯一标识码
+ */
+export function sendLoginRequest(requestOption: {state: string}) : Promise<any>;
+
 ```
 
 
 
 #### 三、使用示例
 
+1. 注册、判断是否安装、支持微信示例
 ```js
 import Wechat from 'eather-react-native-wechat';
 const wechatInit = () => {
@@ -332,5 +448,23 @@ const wechatInit = () => {
       const _isInstall = await Wechat.isWXAppInstalled();
       const _isWXAppSupportApi = await Wechat.isWXAppSupportApi();
 }
+```
+2、 微信登录示例
+```js
+  import Wechat from 'eather-react-native-wechat';
+  const WXLogin = () => {
+    let state = new Date().getTime(); // 这里state取值可根据项目实际设置，此处为简单示例
+    Wechat.sendLoginRequest({state: state}).then((res: any) => {
+      console.log('&**********微信登录请求', res);
+      if (res.errCode === 0) { // 用户同意
+        if (res.state === state) { // state是原样返回的数据,检测正常请求而非外部攻击
+          // do
+        }
+      } else {
+        // res.errCode === -4 用户拒绝
+        // res.errCode === -2 用户取消
+      }
+    });
+  };
 ```
 
