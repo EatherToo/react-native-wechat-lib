@@ -5,10 +5,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.tencent.mm.opensdk.modelbiz.WXLaunchMiniProgram;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
-import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
-import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
-import com.tencent.mm.opensdk.modelmsg.WXTextObject;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
@@ -188,5 +186,34 @@ public class RNWechatModule extends ReactContextBaseJavaModule {
         //调用api接口，发送数据到微信
         api.sendReq(req);
     }
+
+    @ReactMethod
+    // 跳转小程序
+    public void openMiniProgram(ReadableMap requestParams, Promise promise) {
+      RNWechatModule.sendReqPromise = promise;
+      String props[] = {"userName", "path", "miniProgramType"};
+      String userName = requestParams.getString("userName");
+      String path = requestParams.getString("path");
+      Integer miniProgramType = requestParams.getInt("miniProgramType");
+
+      WXLaunchMiniProgram.Req req = new WXLaunchMiniProgram.Req();
+      req.userName = userName; // 填小程序原始id
+      req.path = path;                  ////拉起小程序页面的可带参路径，不填默认拉起小程序首页，对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"。
+      req.miniprogramType = miniProgramType;// 可选打开 开发版，体验版和正式版
+      api.sendReq(req);
+    }
+
+    // @ReactMethod
+    // 跳转微信客服
+    // public void openCustomerSevice(ReadableMap requestParams, Promise promise) {
+    //     RNWechatModule.sendReqPromise = promise;
+    //     String props[] = {"corpId", "url"};
+    //     String corpId = requestParams.getString("corpId");
+    //     String url = requestParams.getString("url");
+    //     WXOpenCustomerServiceChat.Req req = new WXOpenCustomerServiceChat.Req();
+    //     req.corpId = corpId;							      // 企业ID
+    //     req.url = url;	// 客服URL
+    //     api.sendReq(req);
+    // }
 
 }

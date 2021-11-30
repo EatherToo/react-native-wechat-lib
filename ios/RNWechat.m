@@ -13,6 +13,11 @@ static RCTPromiseResolveBlock sendLoginResolverStatic = nil;
 
 static RCTPromiseRejectBlock sendLoginRejecterStatic = nil;
 
+// 小程序
+static RCTPromiseResolveBlock sendMiniProResolverStatic = nil;
+
+static RCTPromiseRejectBlock sendMiniProRejecterStatic = nil;
+
 
 @implementation RNWechat {
     BOOL *_api;
@@ -32,6 +37,14 @@ static RCTPromiseRejectBlock sendLoginRejecterStatic = nil;
 
 + (RCTPromiseRejectBlock) getSendLoginRejecterStatic {
     return sendLoginRejecterStatic;
+}
+
++ (RCTPromiseResolveBlock)getSendMiniProResolverStatic {
+    return sendMiniProResolverStatic;
+}
+
++ (RCTPromiseRejectBlock) getSendMiniProRejecterStatic {
+    return sendMiniProRejecterStatic;
 }
 
 RCT_EXPORT_MODULE()
@@ -165,5 +178,31 @@ RCT_EXPORT_METHOD(sendLoginRequest: (NSDictionary *)params resolver: (RCTPromise
       NSLog(@"WeChatSDK SELF: %d", success);
   }];
 }
+
+// 拉起小程序
+RCT_EXPORT_METHOD(openMiniProgram: (NSDictionary *)params resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+  sendMiniProResolverStatic = resolve;
+  sendMiniProRejecterStatic = reject;
+
+  WXLaunchMiniProgramReq *launchMiniProgramReq = [WXLaunchMiniProgramReq object];
+  launchMiniProgramReq.userName = params[@"userName"];  //拉起的小程序的账号id
+  launchMiniProgramReq.path = params[@"path"];    ////拉起小程序页面的可带参路径，不填默认拉起小程序首页，对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"。
+  NSString *miniProgramType = [params objectForKey:@"miniProgramType"];
+  launchMiniProgramReq.miniProgramType = [miniProgramType intValue]; //拉起小程序的类型
+  return  [WXApi sendReq:launchMiniProgramReq completion:^(BOOL success) {
+      NSLog(@"WeChatSDK openMiniProgram: %d", success);
+  }];
+}
+
+// 拉起微信客服
+// RCT_EXPORT_METHOD(openCustomerSevice: (NSDictionary *)params resolver: (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+//   sendMiniProResolverStatic = resolve;
+//   sendMiniProRejecterStatic = reject;
+
+//   WXOpenCustomerServiceReq *req = [[WXOpenCustomerServiceReq alloc] init];
+//   req.corpid = params[@"corpid"];	//企业ID
+//   req.url = params[@"url"];			//客服URL
+//   return [WXApi sendReq:req completion:nil];
+// }
 
 @end

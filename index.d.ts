@@ -46,3 +46,18 @@ export function sendPayRequest(requestOption: RequestOption) : Promise<any>;
  * @param state 唯一标识码
  */
 export function sendLoginRequest(requestOption: {state: string}) : Promise<any>;
+
+/**
+ * 跳转小程序
+ * @param userName 小程序id
+ * @param path 小程序页面路径，不填默认首页
+ * @param miniProgramType 小程序版本 0: 正式版， 1：开发版， 2：体验版
+*/
+export function openMiniProgram(requestOption: {userName: string, path: string, miniProgramType: number}) : Promise<any>;
+
+/**
+ * 跳转微信客服
+ * @param corpid 企业id
+ * @param url 客服url
+*/
+// export function openCustomerSevice(requestOption: {corpid: string, url: string}) : Promise<any>;
