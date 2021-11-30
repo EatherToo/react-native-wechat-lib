@@ -54,4 +54,17 @@ export default class Wechat {
     return NativeModules.RNWechat.sendLoginRequest(requestOption);
   }
 
+  /**
+   * 跳转小程序
+   */
+   static openMiniProgram(requestOption) {
+    return NativeModules.RNWechat.openMiniProgram(requestOption);
+  }
+
+  /**
+   * 跳转微信客服
+   */
+  //  static openCustomerSevice(requestOption) {
+  //   return NativeModules.RNWechat.openCustomerSevice(requestOption);
+  // }
 }

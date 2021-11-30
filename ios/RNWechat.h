@@ -12,5 +12,9 @@
 
 + (RCTPromiseRejectBlock) getSendLoginRejecterStatic;
 
++ (RCTPromiseResolveBlock)getSendMiniProResolverStatic;
+
++ (RCTPromiseRejectBlock) getSendMiniProRejecterStatic;
+
 @property NSString* appId;
 @end

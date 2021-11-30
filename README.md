@@ -184,7 +184,7 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
               }
           }
           ```
-        2、微信登录认证：同上，在`wxapi`包下再新建一个名为`WXPayEntryActivity`的类
+        2、微信登录认证/跳转小程序：同上，在`wxapi`包下再新建一个名为`WXEntryActivity`的类
         ```java
         package xx.xx.wxapi;
         import android.app.Activity;
@@ -213,6 +213,16 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
             }
 
             @Override
+            protected void onNewIntent(Intent intent) {
+
+                super.onNewIntent(intent);
+
+                setIntent(intent);
+
+                api.handleIntent(intent, this);
+            }
+
+            @Override
             protected void onStart() {
                 super.onStart();
                 finish();
@@ -227,16 +237,22 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
             @Override
             // 应用请求微信的响应结果回调
             public void onResp(BaseResp baseResp) {
+                // 调用小程序回调
+                if (baseResp.getType() == ConstantsAPI.COMMAND_LAUNCH_WX_MINIPROGRAM) {
+                    WXLaunchMiniProgram.Resp launchMiniProResp = (WXLaunchMiniProgram.Resp) baseResp;
+                    String extraData =launchMiniProResp.extMsg; //对应小程序组件 <button open-type="launchApp"> 中的 app-parameter 属性
+                    RNWechatModule.sendReqPromise.resolve(extraData);
+                } else if (baseResp.getType() == ConstantsAPI.COMMAND_SENDAUTH) {
+                    // 微信登录认证回调
+                    Log.d("WXLogin", "onLoginFinish, errCode = " + baseResp.errCode);
+                    SendAuth.Resp resp = (SendAuth.Resp) baseResp;
+                    WritableMap params = Arguments.createMap();
+                    params.putInt("errCode",  baseResp.errCode);
+                    params.putString("code",  resp.code);
+                    params.putString("state",  resp.state);
 
-                Log.d("WXLogin", "onLoginFinish, errCode = " + baseResp.errCode);
-                SendAuth.Resp resp = (SendAuth.Resp) baseResp;
-                WritableMap params = Arguments.createMap();
-                params.putInt("errCode",  baseResp.errCode); // 错误码
-                params.putString("code",  resp.code); // 用户换取 access_token 的 code，仅在 ErrCode 为 0 时有效
-                params.putString("state",  resp.state); // state是用来做标识请求唯一性
-                // lang、country，语言与国家两个字段需要可自行加入返回数据中
-
-                RNWechatModule.sendReqPromise.resolve(params);
+                    RNWechatModule.sendReqPromise.resolve(params);
+                }
 
             }
         }
@@ -253,7 +269,7 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
                       android:launchMode="singleTop"
                       android:theme="@android:style/Theme.NoDisplay" />
           ```
-      2. 微信登录认证
+      2. 微信登录认证/跳转小程序
           
           ```xml
             <activity
@@ -280,7 +296,7 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
         #import <RNWechat/RNWechat.h>
         ```
 
-     2. 添加微信消息接收事件的方法
+     2. 添加微信消息接收事件的方法： 根据实际需要（按注释说明配置即可）定义onResp内类别判断
 
         ```objective-c
         //ios9以后
@@ -341,35 +357,47 @@ https://uiwjs.github.io/react-native-wechat/apple-app-site-association
             
           }
           
-        //判断是否是微信支付回调类型 (注意是PayResp 而不是PayReq)
-        if ([resp isKindOfClass:[PayResp class]])
-        {
-          RCTPromiseResolveBlock resolver = [RNWechat getSendPayResolverStatic];
-          RCTPromiseRejectBlock rejecter = [RNWechat getSendPayRejecterStatic];
-          //启动微信支付的response
-              NSString *payResoult = [NSString stringWithFormat:@"errcode:%d", resp.errCode];
-              if([resp isKindOfClass:[PayResp class]]){
-                  //支付返回结果，实际支付结果需要去微信服务器端查询
-                  switch (resp.errCode) {
-                      case 0:
-                          payResoult = @"支付结果：成功！";
-                          break;
-                      case -1:
-                          payResoult = @"支付结果：失败！";
-                          break;
-                      case -2:
-                          payResoult = @"用户已经退出支付！";
-                          break;
-                      default:
-                          payResoult = [NSString stringWithFormat:@"支付结果：失败！retcode = %d, retstr = %@", resp.errCode,resp.errStr];
-                          break;
+          //判断是否是微信支付回调类型 (注意是PayResp 而不是PayReq)
+          if ([resp isKindOfClass:[PayResp class]])
+            {
+              RCTPromiseResolveBlock resolver = [RNWechat getSendPayResolverStatic];
+              RCTPromiseRejectBlock rejecter = [RNWechat getSendPayRejecterStatic];
+              //启动微信支付的response
+                  NSString *payResoult = [NSString stringWithFormat:@"errcode:%d", resp.errCode];
+                  if([resp isKindOfClass:[PayResp class]]){
+                      //支付返回结果，实际支付结果需要去微信服务器端查询
+                      switch (resp.errCode) {
+                          case 0:
+                              payResoult = @"支付结果：成功！";
+                              break;
+                          case -1:
+                              payResoult = @"支付结果：失败！";
+                              break;
+                          case -2:
+                              payResoult = @"用户已经退出支付！";
+                              break;
+                          default:
+                              payResoult = [NSString stringWithFormat:@"支付结果：失败！retcode = %d, retstr = %@", resp.errCode,resp.errStr];
+                              break;
+                      }
+                    resolver(@(resp.errCode));
+                  } else {
+                    rejecter(@"-10404", @"失败", nil);
                   }
-                resolver(@(resp.errCode));
-              } else {
-                rejecter(@"-10404", @"失败", nil);
-              }
-          NSLog(@"WeChatSDK: %@", payResoult);
-        }
+              NSLog(@"WeChatSDK: %@", payResoult);
+            }
+          // 拉起小程序
+          if ([resp isKindOfClass:[WXLaunchMiniProgramResp class]])
+            {
+              
+                RCTPromiseResolveBlock resolver = [RNWechat getSendMiniProResolverStatic];
+                RCTPromiseRejectBlock rejecter = [RNWechat getSendMiniProRejecterStatic];
+
+                WXLaunchMiniProgramResp *miniProResp = (WXLaunchMiniProgramResp *)resp;
+                NSString *extMsg = miniProResp.extMsg;
+                resolver(extMsg);
+                // 对应JsApi navigateBackApplication中的extraData字段数据
+            }
         }
         - (BOOL)application:(UIApplication *)application continueUserActivity:(nonnull NSUserActivity *)userActivity restorationHandler:(nonnull void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler{
           return [WXApi handleOpenUniversalLink:userActivity delegate:self];
@@ -431,6 +459,13 @@ export function sendPayRequest(requestOption: RequestOption) : Promise<any>;
  */
 export function sendLoginRequest(requestOption: {state: string}) : Promise<any>;
 
+/**
+ * 跳转小程序
+ */
+  static openMiniProgram(requestOption) {
+  return NativeModules.RNWechat.openMiniProgram(requestOption);
+}
+
 ```
 
 
@@ -468,5 +503,23 @@ const wechatInit = () => {
       }
     });
   };
+```
+2、 跳转小程序
+```js
+  import Wechat from 'eather-react-native-wechat';
+  const goWXMiniProgram = () => {
+    Wechat.openMiniProgram({
+      // 小程序id
+      userName: 'XXXXXX',
+      // 小程序页面路径，不填默认首页
+      path: 'pages/XXX/XXX',
+      // 小程序版本 0: 正式版， 1：开发版， 2：体验版
+      miniProgramType: 0,
+    }).then(res => {
+      // 这里需要注意的是，这里的回调指的是小程序代码中下方按钮传递的app-parameter值，如果没有或者不需要这个按钮，就没有回调。。。。。
+      // <button class="back_app" open-type="launchApp" app-parameter="wechat" binderror="launchAppError">打开app</button>
+      console.log('前往微信小程序', res);
+    });
+  }
 ```
 
